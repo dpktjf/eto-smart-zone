@@ -13,8 +13,8 @@ from homeassistant.components.sensor.const import SensorDeviceClass, SensorState
 from homeassistant.const import UnitOfLength
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 
-from custom_components.eto_irrigation.api import ETOApiClientError
-from custom_components.eto_irrigation.const import (
+from custom_components.eto_smart_zone.api import ETOApiClientError
+from custom_components.eto_smart_zone.const import (
     ATTR_API_RUNTIME,
     ATTRIBUTION,
     CALC_FSETO_35,

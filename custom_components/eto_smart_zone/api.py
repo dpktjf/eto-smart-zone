@@ -18,7 +18,7 @@ from homeassistant.const import (
 )
 from homeassistant.util.unit_conversion import SpeedConverter
 
-from custom_components.eto_irrigation.api_helpers import (
+from custom_components.eto_smart_zone.api_helpers import (
     atm_pressure,
     c_to_k,
     cs_rad,
@@ -43,7 +43,7 @@ from custom_components.eto_irrigation.api_helpers import (
     wind_speed,
     wind_term,
 )
-from custom_components.eto_irrigation.const import (
+from custom_components.eto_smart_zone.const import (
     CALC_FS_33,
     CALC_FS_34,
     CALC_FSETO_35,

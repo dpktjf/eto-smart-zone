@@ -5,7 +5,7 @@ import math
 
 from numpy import floating, mean
 
-from custom_components.eto_irrigation.const import (
+from custom_components.eto_smart_zone.const import (
     K_TO_C_FACTOR,
     SOLAR_CONSTANT,
     STEFAN_BOLTZMANN_CONSTANT,

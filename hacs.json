@@ -1,7 +1,7 @@
 {
-    "name": "ETO Irrigation",
+    "name": "ETO Smart Zone Calculator",
     "country": "ALL",
     "hide_default_branch": true,
-    "homeassistant": "2024.7.2",
+    "homeassistant": "2024.8.0",
     "render_readme": true
 }
