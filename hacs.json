@@ -1,0 +1,7 @@
+{
+    "name": "ETO Irrigation",
+    "country": "ALL",
+    "hide_default_branch": true,
+    "homeassistant": "2024.7.2",
+    "render_readme": true
+}

@@ -1,0 +1,46 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Zone already configured"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect: {error}",
+            "auth": "Username/Password is wrong.",
+            "connection": "Unable to connect to the server.",
+            "unknown": "Unknown error occurred."
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "name": "Zone Name",
+                    "temp_min": "Min Temp",
+                    "temp_max": "Max Temp",
+                    "humidity_min": "Min Humidity",
+                    "humidity_max": "Max Humidity",
+                    "pressure": "Pressure",
+                    "wind": "Wind",
+                    "albedo": "Albedo",
+                    "solar_rad": "Solar Rad"
+                },
+                "description": "Configure the watering zone"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "temp_min": "Min Temp",
+                    "temp_max": "Max Temp",
+                    "humidity_min": "Min Humidity",
+                    "humidity_max": "Max Humidity",
+                    "pressure": "Pressure",
+                    "wind": "Wind",
+                    "albedo": "Albedo",
+                    "solar_rad": "Solar Rad"
+                }
+            }
+        }
+    },
+    "issues": {}
+}

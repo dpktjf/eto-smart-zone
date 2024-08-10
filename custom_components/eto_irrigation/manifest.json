@@ -1,0 +1,14 @@
+{
+  "domain": "eto_irrigation",
+  "name": "ETO Irrigation",
+  "codeowners": [
+    "@dpktjf"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/dpktjf/eto-irrigation",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/dpktjf/eto-irrigation/issues",
+  "requirements": [],
+  "version": "2024.8.2"
+}
