@@ -8,17 +8,17 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
 
-    from .api import ETOApiClient
-    from .coordinator import ETODataUpdateCoordinator
+    from .api import ETOSmartZoneClient
+    from .coordinator import ETOSmartZoneDataUpdateCoordinator
 
 
-type ETOConfigEntry = ConfigEntry[ETOData]
+type ETOSmartZoneConfigEntry = ConfigEntry[ETOSmartZoneData]
 
 
 @dataclass
-class ETOData:
-    """Data for the ETO Test."""
+class ETOSmartZoneData:
+    """Data for the ETO Smart Zone Calculator."""
 
     name: str
-    client: ETOApiClient
-    coordinator: ETODataUpdateCoordinator
+    client: ETOSmartZoneClient
+    coordinator: ETOSmartZoneDataUpdateCoordinator

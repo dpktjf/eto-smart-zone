@@ -10,22 +10,20 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
 )
 from homeassistant.components.sensor.const import SensorDeviceClass, SensorStateClass
-from homeassistant.const import UnitOfLength
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, UnitOfTime
+from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.event import async_track_state_change_event
 
-from custom_components.eto_smart_zone.api import ETOApiClientError
+from custom_components.eto_smart_zone.api import ETOApiSmartZoneError
 from custom_components.eto_smart_zone.const import (
-    ATTR_API_RUNTIME,
+    ATTR_ETO,
+    ATTR_RAIN,
     ATTRIBUTION,
-    CALC_FSETO_35,
-    CONF_ALBEDO,
-    CONF_DOY,
-    CONF_HUMIDITY_MAX,
-    CONF_HUMIDITY_MIN,
-    CONF_SOLAR_RAD,
-    CONF_TEMP_MAX,
-    CONF_TEMP_MIN,
-    CONF_WIND,
+    CALC_RUNTIME,
+    CONF_MAX_MINS,
+    CONF_SCALE,
+    CONF_THROUGHPUT_MM_H,
     DEFAULT_NAME,
     DOMAIN,
     MANUFACTURER,
@@ -36,16 +34,16 @@ if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-    from .coordinator import ETODataUpdateCoordinator
-    from .data import ETOConfigEntry
+    from .coordinator import ETOSmartZoneDataUpdateCoordinator
+    from .data import ETOSmartZoneConfigEntry
 
 SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
-        key=ATTR_API_RUNTIME,
-        name="ETO",
-        icon="mdi:weather-pouring",
-        native_unit_of_measurement=UnitOfLength.MILLIMETERS,
-        device_class=SensorDeviceClass.PRECIPITATION,
+        key=DOMAIN,
+        name="ETO Smart Zone",
+        icon="mdi:sprinkler",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
         state_class=SensorStateClass.MEASUREMENT,
     ),
 )
@@ -54,7 +52,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
     hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
-    config_entry: ETOConfigEntry,
+    config_entry: ETOSmartZoneConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the sensor platform."""
@@ -62,10 +60,10 @@ async def async_setup_entry(
     name = domain_data.name
     weather_coordinator = domain_data.coordinator
 
-    entities: list[AbstractETOSensor] = [
-        ETOSensor(
+    entities: list[ETOSmartZoneSensor] = [
+        ETOSmartZoneSensor(
             name,
-            f"{name}-{description.key}",
+            f"{description.key}-{name}",
             description,
             weather_coordinator,
         )
@@ -74,8 +72,8 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class AbstractETOSensor(SensorEntity):
-    """Abstract class for an OpenWeatherMap sensor."""
+class ETOSmartZoneSensor(SensorEntity):
+    """ETO Smart Zone Sensor class."""
 
     _attr_should_poll = False
     _attr_attribution = ATTRIBUTION
@@ -84,19 +82,20 @@ class AbstractETOSensor(SensorEntity):
         self,
         name: str,
         unique_id: str,
-        description: SensorEntityDescription,
-        coordinator: DataUpdateCoordinator,
+        entity_description: SensorEntityDescription,
+        coordinator: ETOSmartZoneDataUpdateCoordinator,
     ) -> None:
-        """Initialize the sensor."""
-        self.entity_description = description
+        """Initialize the sensor class."""
+        self.entity_description = entity_description
         self._coordinator = coordinator
+        self.states: dict[str, Any] = {}
 
-        self._attr_name = f"{name} {description.name}"
+        self._attr_name = f"{entity_description.name} {name}"
         self._attr_unique_id = unique_id
         split_unique_id = unique_id.split("-")
         self._attr_device_info = DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, f"{split_unique_id[0]}.lower()")},
+            identifiers={(DOMAIN, f"{split_unique_id[1]}.lower()")},
             manufacturer=MANUFACTURER,
             name=DEFAULT_NAME,
         )
@@ -116,25 +115,10 @@ class AbstractETOSensor(SensorEntity):
         """Get the latest data from OWM and updates the states."""
         await self._coordinator.async_request_refresh()
 
-
-class ETOSensor(AbstractETOSensor):
-    """eto_irrigation Sensor class."""
-
-    def __init__(
-        self,
-        name: str,
-        unique_id: str,
-        entity_description: SensorEntityDescription,
-        coordinator: ETODataUpdateCoordinator,
-    ) -> None:
-        """Initialize the sensor class."""
-        super().__init__(name, unique_id, entity_description, coordinator)
-        self.coordinator = coordinator
-
     @property
     def native_value(self) -> str | None:
         """Return the native value of the sensor."""
-        return self.coordinator.data[CALC_FSETO_35]
+        return self._coordinator.data[CALC_RUNTIME]
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -142,15 +126,14 @@ class ETOSensor(AbstractETOSensor):
         attributes: dict[str, Any] = {}
 
         try:
-            attributes[CONF_TEMP_MIN] = self.coordinator.data[CONF_TEMP_MIN]
-            attributes[CONF_TEMP_MAX] = self.coordinator.data[CONF_TEMP_MAX]
-            attributes[CONF_HUMIDITY_MIN] = self.coordinator.data[CONF_HUMIDITY_MIN]
-            attributes[CONF_HUMIDITY_MAX] = self.coordinator.data[CONF_HUMIDITY_MAX]
-            attributes[CONF_WIND] = round(self.coordinator.data[CONF_WIND], 1)
-            attributes[CONF_ALBEDO] = self.coordinator.data[CONF_ALBEDO]
-            attributes[CONF_SOLAR_RAD] = self.coordinator.data[CONF_SOLAR_RAD]
-            attributes[CONF_DOY] = self.coordinator.data[CONF_DOY]
-        except ETOApiClientError as ex:
+            attributes[ATTR_ETO] = self._coordinator.data[ATTR_ETO]
+            attributes[ATTR_RAIN] = self._coordinator.data[ATTR_RAIN]
+            attributes[CONF_THROUGHPUT_MM_H] = self._coordinator.data[
+                CONF_THROUGHPUT_MM_H
+            ]
+            attributes[CONF_SCALE] = self._coordinator.data[CONF_SCALE]
+            attributes[CONF_MAX_MINS] = self._coordinator.data[CONF_MAX_MINS]
+        except ETOApiSmartZoneError as ex:
             _LOGGER.exception(ex)  # noqa: TRY401
 
         return attributes

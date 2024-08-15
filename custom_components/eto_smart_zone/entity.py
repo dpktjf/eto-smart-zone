@@ -6,15 +6,15 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTRIBUTION
-from .coordinator import ETODataUpdateCoordinator
+from .coordinator import ETOSmartZoneDataUpdateCoordinator
 
 
-class ETOEntity(CoordinatorEntity[ETODataUpdateCoordinator]):
+class ETOSmartZoneEntity(CoordinatorEntity[ETOSmartZoneDataUpdateCoordinator]):
     """ETOEntity class."""
 
     _attr_attribution = ATTRIBUTION
 
-    def __init__(self, coordinator: ETODataUpdateCoordinator) -> None:
+    def __init__(self, coordinator: ETOSmartZoneDataUpdateCoordinator) -> None:
         """Initialize."""
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id

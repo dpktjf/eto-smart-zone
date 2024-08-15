@@ -1,28 +1,25 @@
 {
+    "title": "Smart Irrigation Zone Calculator",
     "config": {
-        "abort": {
-            "already_configured": "Zone already configured"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect: {error}",
-            "auth": "Username/Password is wrong.",
-            "connection": "Unable to connect to the server.",
-            "unknown": "Unknown error occurred."
-        },
         "step": {
             "user": {
+                "title": "",
+                "description": "Create a sensor that calculates runtime for a watering zone, given calculated ETo and associated zone calibration data.",
                 "data": {
-                    "name": "Zone Name",
-                    "temp_min": "Min Temp",
-                    "temp_max": "Max Temp",
-                    "humidity_min": "Min Humidity",
-                    "humidity_max": "Max Humidity",
-                    "pressure": "Pressure",
-                    "wind": "Wind",
-                    "albedo": "Albedo",
-                    "solar_rad": "Solar Rad"
+                    "name": "Smart watering zone name",
+                    "entity_id": "ETO entity",
+                    "rain_entity_id": "Input rain entity",
+                    "throughput_mm_h": "Water throughput",
+                    "scale": "Scale factor",
+                    "max_mins": "Maximum runtime"
                 },
-                "description": "Configure the watering zone"
+                "data_description": {
+                    "entity_id": "Name of the entity holding the calculated ETo value.",
+                    "rain_entity_id": "Name of the entity holding the accumulated rainfall over last 24h.",
+                    "throughput_mm_h": "Volume of water in mm/h that the zone can output.",
+                    "scale": "Percentage by which to scale the raw runtime calculations for the zone.",
+                    "max_mins": "Maximum runtime for the zone in minutes."
+                }
             }
         }
     },
@@ -30,17 +27,26 @@
         "step": {
             "init": {
                 "data": {
-                    "temp_min": "Min Temp",
-                    "temp_max": "Max Temp",
-                    "humidity_min": "Min Humidity",
-                    "humidity_max": "Max Humidity",
-                    "pressure": "Pressure",
-                    "wind": "Wind",
-                    "albedo": "Albedo",
-                    "solar_rad": "Solar Rad"
+                    "entity_id": "ETO entity",
+                    "rain_entity_id": "Input rain entity",
+                    "throughput_mm_h": "Water throughput",
+                    "scale": "Scale factor",
+                    "max_mins": "Maximum runtime"
+                },
+                "data_description": {
+                    "entity_id": "Name of the entity holding the calculated ETo value.",
+                    "rain_entity_id": "Name of the entity holding the accumulated rainfall over last 24h.",
+                    "throughput_mm_h": "Volume of water in mm/h that the zone can output.",
+                    "scale": "Percentage by which to scale the raw runtime calculations for the zone.",
+                    "max_mins": "Maximum runtime for the zone in minutes."
                 }
             }
         }
     },
-    "issues": {}
+    "services": {
+        "reload": {
+            "name": "[%key:common::action::reload%]",
+            "description": "Reloads ETO Zone Calculator sensors from the YAML-configuration."
+        }
+    }
 }

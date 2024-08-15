@@ -9,27 +9,27 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import (
-    ETOApiClient,
-    ETOApiClientAuthenticationError,
-    ETOApiClientError,
+    ETOApiSmartZoneAuthenticationError,
+    ETOApiSmartZoneError,
+    ETOSmartZoneClient,
 )
 from .const import DOMAIN, LOGGER
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
-    from .data import ETOConfigEntry
+    from .data import ETOSmartZoneConfigEntry
 
 
 # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
-class ETODataUpdateCoordinator(DataUpdateCoordinator):
+class ETOSmartZoneDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
-    config_entry: ETOConfigEntry
+    config_entry: ETOSmartZoneConfigEntry
 
     def __init__(
         self,
-        eto_client: ETOApiClient,
+        eto_client: ETOSmartZoneClient,
         hass: HomeAssistant,
     ) -> None:
         """Initialize."""
@@ -46,7 +46,12 @@ class ETODataUpdateCoordinator(DataUpdateCoordinator):
         """Update data via library."""
         try:
             return await self._eto_client.async_get_data()
-        except ETOApiClientAuthenticationError as exception:
+        except ETOApiSmartZoneAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
-        except ETOApiClientError as exception:
+        except ETOApiSmartZoneError as exception:
             raise UpdateFailed(exception) from exception
+
+    @property
+    def eto_client(self) -> ETOSmartZoneClient:
+        """Getter."""
+        return self._eto_client
