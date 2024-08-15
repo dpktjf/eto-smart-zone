@@ -10,10 +10,9 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
 )
 from homeassistant.components.sensor.const import SensorDeviceClass, SensorStateClass
-from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, UnitOfTime
-from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
+from homeassistant.const import UnitOfTime
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
-from homeassistant.helpers.event import async_track_state_change_event
 
 from custom_components.eto_smart_zone.api import ETOApiSmartZoneError
 from custom_components.eto_smart_zone.const import (
@@ -32,7 +31,6 @@ from custom_components.eto_smart_zone.const import (
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-    from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
     from .coordinator import ETOSmartZoneDataUpdateCoordinator
     from .data import ETOSmartZoneConfigEntry
