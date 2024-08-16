@@ -7,14 +7,14 @@
                 "description": "Create a sensor that calculates runtime for a watering zone, given calculated ETo and associated zone calibration data.",
                 "data": {
                     "name": "Smart watering zone name",
-                    "entity_id": "ETO entity",
+                    "eto_entity_id": "ETO entity",
                     "rain_entity_id": "Input rain entity",
                     "throughput_mm_h": "Water throughput",
                     "scale": "Scale factor",
                     "max_mins": "Maximum runtime"
                 },
                 "data_description": {
-                    "entity_id": "Name of the entity holding the calculated ETo value.",
+                    "eto_entity_id": "Name of the entity holding the calculated ETo value.",
                     "rain_entity_id": "Name of the entity holding the accumulated rainfall over last 24h.",
                     "throughput_mm_h": "Volume of water in mm/h that the zone can output.",
                     "scale": "Percentage by which to scale the raw runtime calculations for the zone.",
@@ -27,14 +27,14 @@
         "step": {
             "init": {
                 "data": {
-                    "entity_id": "ETO entity",
+                    "eto_entity_id": "ETO entity",
                     "rain_entity_id": "Input rain entity",
                     "throughput_mm_h": "Water throughput",
                     "scale": "Scale factor",
                     "max_mins": "Maximum runtime"
                 },
                 "data_description": {
-                    "entity_id": "Name of the entity holding the calculated ETo value.",
+                    "eto_entity_id": "Name of the entity holding the calculated ETo value.",
                     "rain_entity_id": "Name of the entity holding the accumulated rainfall over last 24h.",
                     "throughput_mm_h": "Volume of water in mm/h that the zone can output.",
                     "scale": "Percentage by which to scale the raw runtime calculations for the zone.",

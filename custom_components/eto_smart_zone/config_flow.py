@@ -120,13 +120,36 @@ class ETOSmartZoneOptionsFlow(OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_NAME): cv.string,
-                    vol.Required(CONF_ETO_ENTITY_ID): cv.entity_id,
-                    vol.Required(CONF_RAIN_ENTITY_ID): cv.entity_id,
-                    vol.Optional(CONF_THROUGHPUT_MM_H): vol.Coerce(int),
-                    vol.Optional(CONF_SCALE): vol.Coerce(int),
-                    vol.Optional(CONF_MAX_MINS): vol.Coerce(int),
-                    vol.Optional(CONF_UNIQUE_ID): cv.string,
+                    vol.Required(
+                        CONF_ETO_ENTITY_ID,
+                        default=self.config_entry.options[CONF_ETO_ENTITY_ID],
+                    ): selector.EntitySelector(
+                        selector.EntitySelectorConfig(
+                            domain=[SENSOR_DOMAIN],
+                            multiple=False,
+                        ),
+                    ),
+                    vol.Required(
+                        CONF_RAIN_ENTITY_ID,
+                        default=self.config_entry.options[CONF_RAIN_ENTITY_ID],
+                    ): selector.EntitySelector(
+                        selector.EntitySelectorConfig(
+                            domain=[SENSOR_DOMAIN],
+                            multiple=False,
+                        ),
+                    ),
+                    vol.Optional(
+                        CONF_THROUGHPUT_MM_H,
+                        default=self.config_entry.options[CONF_THROUGHPUT_MM_H],
+                    ): vol.Coerce(int),
+                    vol.Optional(
+                        CONF_SCALE,
+                        default=self.config_entry.options[CONF_SCALE],
+                    ): vol.Coerce(int),
+                    vol.Optional(
+                        CONF_MAX_MINS,
+                        default=self.config_entry.options[CONF_MAX_MINS],
+                    ): vol.Coerce(int),
                 }
             ),
         )
