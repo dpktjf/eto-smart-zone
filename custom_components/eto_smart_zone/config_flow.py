@@ -19,10 +19,8 @@ from homeassistant.config_entries import (
 # https://github.com/home-assistant/core/blob/master/homeassistant/const.py
 from homeassistant.const import (
     CONF_NAME,
-    CONF_UNIQUE_ID,
 )
 from homeassistant.core import callback
-from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import selector
 
 from .const import (
