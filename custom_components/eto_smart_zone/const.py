@@ -22,4 +22,5 @@ CONF_THROUGHPUT_MM_H = "throughput_mm_h"
 
 ATTR_ETO = "eto"
 ATTR_RAIN = "rain"
+ATTR_RAW_RUNTIME = "raw_runtime"
 CALC_RUNTIME = "runtime"

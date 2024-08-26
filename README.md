@@ -10,6 +10,7 @@ Integration that will calculate watering zone runtime given:
 
 Calculations as follows:
 
+'''
 delta = rain over period - calculated ETO requirement
 if delta < 0 then
     # Watering required
@@ -18,4 +19,4 @@ if delta < 0 then
         runtime = max zone run time * 60
 else
     runtime = 0
-
+'''
