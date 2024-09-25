@@ -18,8 +18,8 @@ from custom_components.eto_smart_zone.api import ETOApiSmartZoneError
 from custom_components.eto_smart_zone.const import (
     ATTR_ETO,
     ATTR_RAIN,
-    CALC_RAW_RUNTIME,
     ATTRIBUTION,
+    CALC_RAW_RUNTIME,
     CALC_RUNTIME,
     CONF_MAX_MINS,
     CONF_SCALE,
