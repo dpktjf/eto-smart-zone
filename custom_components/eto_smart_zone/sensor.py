@@ -18,7 +18,7 @@ from custom_components.eto_smart_zone.api import ETOApiSmartZoneError
 from custom_components.eto_smart_zone.const import (
     ATTR_ETO,
     ATTR_RAIN,
-    ATTR_RAW_RUNTIME,
+    CALC_RAW_RUNTIME,
     ATTRIBUTION,
     CALC_RUNTIME,
     CONF_MAX_MINS,
@@ -131,7 +131,7 @@ class ETOSmartZoneSensor(SensorEntity):
                 CONF_THROUGHPUT_MM_H
             ]
             attributes[CONF_SCALE] = self._coordinator.data[CONF_SCALE]
-            attributes[ATTR_RAW_RUNTIME] = self._coordinator.data[ATTR_RAW_RUNTIME]
+            attributes[CALC_RAW_RUNTIME] = self._coordinator.data[CALC_RAW_RUNTIME]
             attributes[CONF_MAX_MINS] = self._coordinator.data[CONF_MAX_MINS]
         except ETOApiSmartZoneError as ex:
             _LOGGER.exception(ex)  # noqa: TRY401

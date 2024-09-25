@@ -10,7 +10,7 @@ from homeassistant.const import STATE_UNKNOWN
 from custom_components.eto_smart_zone.const import (
     ATTR_ETO,
     ATTR_RAIN,
-    ATTR_RAW_RUNTIME,
+    CALC_RAW_RUNTIME,
     CALC_RUNTIME,
     CONF_MAX_MINS,
     CONF_SCALE,
@@ -79,6 +79,7 @@ class ETOSmartZoneClient:
         self._states = states
         self._calc_data = {}
         self._calc_data[CALC_RUNTIME] = 0
+        self._calc_data[CALC_RAW_RUNTIME] = 0
         self._calc_data[ATTR_ETO] = STATE_UNKNOWN
         self._calc_data[ATTR_RAIN] = STATE_UNKNOWN
         self._calc_data[CONF_THROUGHPUT_MM_H] = self._throughput
@@ -155,11 +156,12 @@ class ETOSmartZoneClient:
                 reqd: float = abs(delta) / self._throughput * 60 * 60
                 self._calc_data[CALC_RUNTIME] = round(reqd * self._scale / 100)
                 _LOGGER.debug("raw runtime %s", self._calc_data[CALC_RUNTIME])
-                self._calc_data[ATTR_RAW_RUNTIME] = self._calc_data[CALC_RUNTIME]
+                self._calc_data[CALC_RAW_RUNTIME] = self._calc_data[CALC_RUNTIME]
                 if self._calc_data[CALC_RUNTIME] > (self._max_mins * 60):
                     # make sure not longer than max run time
                     self._calc_data[CALC_RUNTIME] = self._max_mins * 60
                     _LOGGER.debug("adjusted runtime %s", self._calc_data[CALC_RUNTIME])
             else:
+                self._calc_data[CALC_RAW_RUNTIME] = 0
                 self._calc_data[CALC_RUNTIME] = 0
                 _LOGGER.debug("no runtime %s", self._calc_data[CALC_RUNTIME])
