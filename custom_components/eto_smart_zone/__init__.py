@@ -7,7 +7,6 @@ https://github.com/dpktjf/eto-irrigation
 
 from __future__ import annotations
 
-import logging
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
@@ -15,15 +14,12 @@ from homeassistant.const import (
     CONF_NAME,
     Platform,
 )
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.event import async_track_state_change_event
 
 from .api import ETOSmartZoneClient
 from .const import (
     CONF_ETO_ENTITY_ID,
-    CONF_MAX_MINS,
     CONF_RAIN_ENTITY_ID,
-    CONF_SCALE,
-    CONF_THROUGHPUT_MM_H,
 )
 from .coordinator import ETOSmartZoneDataUpdateCoordinator
 from .data import ETOSmartZoneData
@@ -39,7 +35,6 @@ PLATFORMS: list[Platform] = [
 
 # https://homeassistantapi.readthedocs.io/en/latest/api.html
 
-_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_SCAN_INTERVAL = timedelta(minutes=10)
 
@@ -52,18 +47,22 @@ async def async_setup_entry(
     """Set up this integration using UI."""
     _name = entry.data[CONF_NAME]
 
-    eto_api = ETOSmartZoneClient(
-        name=_name,
-        eto_entity_id=entry.options[CONF_ETO_ENTITY_ID],
-        rain_entity_id=entry.options[CONF_RAIN_ENTITY_ID],
-        throughput=entry.options[CONF_THROUGHPUT_MM_H],
-        scale=entry.options[CONF_SCALE],
-        max_mins=entry.options[CONF_MAX_MINS],
-        session=async_get_clientsession(hass),
-        states=hass.states,
-    )
+    eto_api = ETOSmartZoneClient(name=_name, config=entry)
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
     coordinator = ETOSmartZoneDataUpdateCoordinator(eto_api, hass)
+    _eto = entry.options.get(CONF_ETO_ENTITY_ID)
+    _rain = entry.options.get(CONF_RAIN_ENTITY_ID)
+    _entities = []
+    for entity in [_eto, _rain]:
+        if entity is not None:
+            _entities.append(entity)  # noqa: PERF401
+    entry.async_on_unload(
+        async_track_state_change_event(
+            hass,
+            _entities,
+            coordinator.async_check_entity_state_change,
+        )
+    )
     await coordinator.async_config_entry_first_refresh()
 
     entry.async_on_unload(entry.add_update_listener(async_update_options))

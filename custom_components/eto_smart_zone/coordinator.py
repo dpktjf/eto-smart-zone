@@ -5,6 +5,10 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -13,10 +17,10 @@ from .api import (
     ETOApiSmartZoneError,
     ETOSmartZoneClient,
 )
-from .const import DOMAIN, LOGGER
+from .const import _LOGGER, DOMAIN
 
 if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
+    from homeassistant.core import Event, EventStateChangedData, HomeAssistant
 
     from .data import ETOSmartZoneConfigEntry
 
@@ -37,7 +41,7 @@ class ETOSmartZoneDataUpdateCoordinator(DataUpdateCoordinator):
 
         super().__init__(
             hass=hass,
-            logger=LOGGER,
+            logger=_LOGGER,
             name=DOMAIN,
             update_interval=timedelta(minutes=10),
         )
@@ -55,3 +59,20 @@ class ETOSmartZoneDataUpdateCoordinator(DataUpdateCoordinator):
     def eto_client(self) -> ETOSmartZoneClient:
         """Getter."""
         return self._eto_client
+
+    async def async_check_entity_state_change(
+        self, event: Event[EventStateChangedData]
+    ) -> None:
+        """Fetch and process state change event."""
+        _LOGGER.debug("Entity state change: %s", event)
+        if (
+            (entity_id := event.data["entity_id"]) is None
+            or (new_state := event.data["new_state"]) is None
+            or new_state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE)
+        ):
+            _LOGGER.debug("skipping entity update for some reason")
+            return
+        _LOGGER.debug("new state = %s", float(new_state.state))
+        await self._eto_client.entity_update(entity_id, float(new_state.state))
+        """self.state_change = True"""
+        await self.async_refresh()

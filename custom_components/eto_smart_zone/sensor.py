@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import (
@@ -14,8 +13,9 @@ from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 
-from custom_components.eto_smart_zone.api import ETOApiSmartZoneError
-from custom_components.eto_smart_zone.const import (
+from .api import ETOApiSmartZoneError
+from .const import (
+    _LOGGER,
     ATTR_ETO,
     ATTR_RAIN,
     ATTRIBUTION,
@@ -46,7 +46,6 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
 )
-_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
@@ -134,6 +133,6 @@ class ETOSmartZoneSensor(SensorEntity):
             attributes[CALC_RAW_RUNTIME] = self._coordinator.data[CALC_RAW_RUNTIME]
             attributes[CONF_MAX_MINS] = self._coordinator.data[CONF_MAX_MINS]
         except ETOApiSmartZoneError as ex:
-            _LOGGER.exception(ex)  # noqa: TRY401
+            _LOGGER.exception(ex)
 
         return attributes

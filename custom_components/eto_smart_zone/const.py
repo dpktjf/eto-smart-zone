@@ -2,7 +2,7 @@
 
 from logging import Logger, getLogger
 
-LOGGER: Logger = getLogger(__package__)
+_LOGGER: Logger = getLogger(__name__)
 
 DOMAIN = "eto_smart_zone"
 DEFAULT_NAME = "ETO Smart Zone"

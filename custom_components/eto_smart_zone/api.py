@@ -2,26 +2,23 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.const import STATE_UNKNOWN
-
-from custom_components.eto_smart_zone.const import (
+from .const import (
+    _LOGGER,
     ATTR_ETO,
     ATTR_RAIN,
     CALC_RAW_RUNTIME,
     CALC_RUNTIME,
+    CONF_ETO_ENTITY_ID,
     CONF_MAX_MINS,
+    CONF_RAIN_ENTITY_ID,
     CONF_SCALE,
     CONF_THROUGHPUT_MM_H,
 )
 
 if TYPE_CHECKING:
-    import aiohttp
-    from homeassistant.core import StateMachine
-
-_LOGGER = logging.getLogger(__name__)
+    from .data import ETOSmartZoneConfigEntry
 
 
 class ETOApiSmartZoneError(Exception):
@@ -55,55 +52,33 @@ class ETOApiSmartZoneCalculationStartupError(
 class ETOSmartZoneClient:
     """Smart Zone API Client."""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         name: str,
-        eto_entity_id: str,
-        rain_entity_id: str,
-        throughput: int,
-        scale: int,
-        max_mins: int,
-        session: aiohttp.ClientSession,
-        states: StateMachine,
+        config: ETOSmartZoneConfigEntry,
     ) -> None:
         """Sample API Client."""
         self._name = name
-        self._eto_entity_id = eto_entity_id
-        self._rain_entity_id = rain_entity_id
-        self._eto: float | str = STATE_UNKNOWN
-        self._rain = STATE_UNKNOWN
-        self._throughput = throughput
-        self._scale = scale
-        self._max_mins = max_mins
-        self._session = session
-        self._states = states
+        self._config = config
+        self._entities = {}
+        self._entities[config.options[CONF_ETO_ENTITY_ID]] = None
+        self._entities[config.options[CONF_RAIN_ENTITY_ID]] = 0
+
+        self._throughput = config.options[CONF_THROUGHPUT_MM_H]
+        self._scale = config.options[CONF_SCALE]
+        self._max_mins = config.options[CONF_MAX_MINS]
         self._calc_data = {}
-        self._calc_data[CALC_RUNTIME] = 0
-        self._calc_data[CALC_RAW_RUNTIME] = 0
-        self._calc_data[ATTR_ETO] = STATE_UNKNOWN
-        self._calc_data[ATTR_RAIN] = STATE_UNKNOWN
+        self._calc_data[CALC_RUNTIME] = None
+        self._calc_data[CALC_RAW_RUNTIME] = None
+        self._calc_data[ATTR_ETO] = None
+        self._calc_data[ATTR_RAIN] = None
         self._calc_data[CONF_THROUGHPUT_MM_H] = self._throughput
         self._calc_data[CONF_SCALE] = self._scale
         self._calc_data[CONF_MAX_MINS] = self._max_mins
 
-    def __str__(self) -> str:
-        """Pretty print."""
-        return f"eto/rain = {self._eto_entity_id}/{self._rain_entity_id}"
-
-    async def _get(self, ent: str) -> float:
-        st = self._states.get(ent)
-        #        if st is not None and isinstance(st.state, float):
-        if st is not None:
-            if st.state == "unknown":
-                msg = "State unknown; probably starting up???"
-                raise ETOApiSmartZoneCalculationStartupError(
-                    msg,
-                )
-            return float(st.state)
-        msg = "States not yet available; probably starting up???"
-        raise ETOApiSmartZoneCalculationError(
-            msg,
-        )
+    async def entity_update(self, entity_id: str, new_state: float) -> None:
+        """Update to an entity pushed."""
+        self._entities[entity_id] = new_state
 
     async def collect_calculation_data(self) -> None:
         """
@@ -113,8 +88,12 @@ class ETOSmartZoneClient:
         """
         # https://developers.home-assistant.io/docs/core/entity/sensor
         try:
-            self._calc_data[ATTR_ETO] = await self._get(self._eto_entity_id)
-            self._calc_data[ATTR_RAIN] = await self._get(self._rain_entity_id)
+            self._calc_data[ATTR_ETO] = self._entities[
+                self._config.options[CONF_ETO_ENTITY_ID]
+            ]
+            self._calc_data[ATTR_RAIN] = self._entities[
+                self._config.options[CONF_RAIN_ENTITY_ID]
+            ]
 
             await self.calc_smart_zone()
             """
@@ -145,8 +124,8 @@ class ETOSmartZoneClient:
     async def calc_smart_zone(self) -> None:
         """Perform ETO calculation."""
         if (
-            self._calc_data[ATTR_ETO] is not STATE_UNKNOWN
-            and self._calc_data[ATTR_RAIN] is not STATE_UNKNOWN
+            self._calc_data[ATTR_ETO] is not None
+            and self._calc_data[ATTR_RAIN] is not None
         ):
             # was amount of rain enough to cover calculated ETo?
             delta: float = self._calc_data[ATTR_RAIN] - self._calc_data[ATTR_ETO]

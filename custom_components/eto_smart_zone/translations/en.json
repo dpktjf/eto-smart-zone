@@ -1,12 +1,21 @@
 {
     "title": "ETO Smart Zone Calculator",
     "config": {
+        "error": {
+            "already_configured": "Zone already configured",
+            "unknown": "Unknown error occurred."
+        },
         "step": {
             "user": {
                 "title": "",
                 "description": "Create a sensor that calculates runtime for a watering zone, given calculated ETo and associated zone calibration data.",
                 "data": {
-                    "name": "Smart watering zone name",
+                    "name": "Smart watering zone name"
+                }
+            },
+            "init": {
+                "description": "Zone calculation attributes",
+                "data": {
                     "eto_entity_id": "ETO entity",
                     "rain_entity_id": "Input rain entity",
                     "throughput_mm_h": "Water throughput",
@@ -26,6 +35,7 @@
     "options": {
         "step": {
             "init": {
+                "description": "Zone calculation attributes",
                 "data": {
                     "eto_entity_id": "ETO entity",
                     "rain_entity_id": "Input rain entity",
